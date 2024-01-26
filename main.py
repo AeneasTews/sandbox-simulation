@@ -11,7 +11,10 @@ clock = pg.time.Clock()
 
 # setup game
 # intialize cell types
-EMPTY, SAND = 0, 1
+EMPTY, SAND, DIRT, STONE_WALL, WATER = 0, 1, 2, 3, 4
+FALLING_TYPES = [SAND, DIRT]
+STATIONARY_TYPES = [STONE_WALL]
+LIQUID_TYPES = [WATER]
 
 # initiate sand colors
 COLORS = [(0, 0, 0)]
@@ -21,6 +24,10 @@ DUNE_COLORS = [(171, 148, 107), (186, 166, 132), (137, 120, 105), (182, 174, 166
 
 DIRT_COLORS = [(234, 208, 168), (182, 159, 102), (107, 84, 40), (118, 85, 43), (64, 41, 5)]
 BROWN_DIRT_COLORS = [(90, 79, 62), (114, 93, 76), (79, 58, 43), (43, 24, 12), (51, 36, 25)]
+
+STONE_WALL_COLORS = [(144, 152, 163), (156, 156, 156), (152, 160, 167), (140, 141, 141), (142, 148, 148)]
+
+WATER_COLORS = [(15, 94, 156), (35, 137, 218), (28, 163, 236), (90, 188, 216), (116, 204, 244)]
 
 # picked_colors = 0
 # while not [1, 2, 3].__contains__(picked_colors):
@@ -36,12 +43,14 @@ BROWN_DIRT_COLORS = [(90, 79, 62), (114, 93, 76), (79, 58, 43), (43, 24, 12), (5
 # elif picked_colors == 3:
 #     COLORS.append(SAND_COLORS + DUNE_COLORS]
 COLORS.append(SAND_COLORS + DUNE_COLORS)
-COLORS.append(DIRT_COLORS + BROWN_DIRT_COLORS)
+COLORS.append(BROWN_DIRT_COLORS)
+COLORS.append(STONE_WALL_COLORS)
+COLORS.append(WATER_COLORS)
 
 # set up cursor and brush
 # cursor_size = int(input("Please choose a cursor size: "))
 cursor_size = 3
-paint = SAND
+paint = DIRT
 
 # create grid
 GRID_WIDTH = 100
@@ -88,45 +97,76 @@ def update_grid():
     for row in range(GRID_HEIGHT - 1):
         for col in range(GRID_WIDTH):
 
+            current_cell = grid[row][col]
+
             # check every cell, that isn't empty
-            if grid[row][col][0] != EMPTY:
+            if current_cell[0] != EMPTY:
                 # copy all cells that have a value to the next grid
-                next_grid[row][col] = grid[row][col]
+                next_grid[row][col] = current_cell
 
-                # check if a cell doesn't have a filled cell below it
-                if grid[row + 1][col][0] == EMPTY:
-                    # empty the current cell and fill the one below it
-                    next_grid[row][col] = (EMPTY, COLORS[EMPTY])
-                    next_grid[row + 1][col] = grid[row][col]
+                # check falling cell types
+                if FALLING_TYPES.__contains__(current_cell[0]):
+                    # generate a random direction for the cell to 'fall' to if the appropriate one is empty in order to
+                    # avoid it always filling up the right side first
+                    drop_dir = random.choice([-1, 1])
 
-                    continue
-
-                # generate a random direction for the cell to 'fall' to if the appropriate one is empty in order to
-                # avoid it always filling up the right side first
-                drop_dir = random.choice([-1, 1])
-
-                # check if the outside columns are being checked
-                if col != GRID_WIDTH - 1 and col != 0:
-                    # check if the cell to the bottom right is empty
-                    if grid[row + 1][col + drop_dir][0] == EMPTY:
+                    # check if a cell doesn't have a filled cell below it
+                    if grid[row + 1][col][0] == EMPTY:
+                        # empty the current cell and fill the one below it
                         next_grid[row][col] = (EMPTY, COLORS[EMPTY])
-                        next_grid[row + 1][col + drop_dir] = grid[row][col]
+                        next_grid[row + 1][col] = current_cell
 
-                    # check if the cell to the bottom left is empty
-                    elif grid[row + 1][col - drop_dir][0] == EMPTY:
-                        next_grid[row][col] = (EMPTY, COLORS[EMPTY])
-                        next_grid[row + 1][col - drop_dir] = grid[row][col]
-
-                # handle outside columns separately in order to avoid list index errors
-                else:
-                    if col == 0:
-                        if grid[row + 1][col + 1][0] == EMPTY:
+                    # check if the outside columns are being checked
+                    elif col != GRID_WIDTH - 1 and col != 0:
+                        # check if the cell to the bottom right is empty
+                        if grid[row + 1][col + drop_dir][0] == EMPTY:
                             next_grid[row][col] = (EMPTY, COLORS[EMPTY])
-                            next_grid[row + 1][col + 1] = grid[row][col]
+                            next_grid[row + 1][col + drop_dir] = current_cell
+
+                        # check if the cell to the bottom left is empty
+                        elif grid[row + 1][col - drop_dir][0] == EMPTY:
+                            next_grid[row][col] = (EMPTY, COLORS[EMPTY])
+                            next_grid[row + 1][col - drop_dir] = current_cell
+
+                    # handle outside columns separately in order to avoid list index errors
                     else:
-                        if grid[row + 1][col - 1][0] == EMPTY:
+                        if col == 0:
+                            if grid[row + 1][col + 1][0] == EMPTY:
+                                next_grid[row][col] = (EMPTY, COLORS[EMPTY])
+                                next_grid[row + 1][col + 1] = current_cell
+                        else:
+                            if grid[row + 1][col - 1][0] == EMPTY:
+                                next_grid[row][col] = (EMPTY, COLORS[EMPTY])
+                                next_grid[row + 1][col - 1] = current_cell
+
+                # if the type is stationary, nothing else should be checked
+                elif STATIONARY_TYPES.__contains__(grid[row][col][0]):
+                    pass
+
+                if LIQUID_TYPES.__contains__(grid[row][col][0]):
+                    # random direction in order to balance
+                    move_dir = random.choice([-1, 1])
+
+                    if col != 0 and col != GRID_WIDTH - 1:
+                        if grid[row + 1][col][0] == EMPTY:
+                            next_grid[row + 1][col] = current_cell
                             next_grid[row][col] = (EMPTY, COLORS[EMPTY])
-                            next_grid[row + 1][col - 1] = grid[row][col]
+
+                        elif grid[row + 1][col - move_dir][0] == EMPTY:
+                            next_grid[row + 1][col - move_dir] = current_cell
+                            next_grid[row][col] = (EMPTY, COLORS[EMPTY])
+
+                        elif grid[row + 1][col + move_dir][0] == EMPTY:
+                            next_grid[row + 1][col + move_dir] = current_cell
+                            next_grid[row][col] = (EMPTY, COLORS[EMPTY])
+
+                        elif grid[row][col - move_dir][0] == EMPTY:
+                            next_grid[row][col - move_dir] = current_cell
+                            next_grid[row][col] = (EMPTY, COLORS[EMPTY])
+
+                        elif grid[row][col + move_dir][0] == EMPTY:
+                            next_grid[row][col + move_dir] = current_cell
+                            next_grid[row][col] = (EMPTY, COLORS[EMPTY])
 
     grid = next_grid
 
@@ -136,6 +176,43 @@ while True:
         if event.type == pg.QUIT:
             pg.quit()
             exit()
+
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_s:
+                paint = SAND
+
+            if event.key == pg.K_d:
+                paint = DIRT
+
+            if event.key == pg.K_e:
+                paint = EMPTY
+
+            if event.key == pg.K_w:
+                paint = STONE_WALL
+
+            if event.key == pg.K_l:
+                paint = WATER
+
+            if event.key == pg.K_0:
+                cursor_size = 0
+            elif event.key == pg.K_1:
+                cursor_size = 1
+            elif event.key == pg.K_2:
+                cursor_size = 2
+            elif event.key == pg.K_3:
+                cursor_size = 3
+            elif event.key == pg.K_4:
+                cursor_size = 4
+            elif event.key == pg.K_5:
+                cursor_size = 5
+            elif event.key == pg.K_6:
+                cursor_size = 6
+            elif event.key == pg.K_7:
+                cursor_size = 7
+            elif event.key == pg.K_8:
+                cursor_size = 8
+            elif event.key == pg.K_9:
+                cursor_size = 9
 
     # check for new cells being placed
     check_mouse()
