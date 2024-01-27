@@ -1,5 +1,7 @@
 import random
 import pygame as pg
+from color_palettes import *
+from element_config import *
 
 # setup pg
 pg.init()
@@ -10,24 +12,8 @@ fps = 60
 clock = pg.time.Clock()
 
 # setup game
-# intialize cell types
-EMPTY, SAND, DIRT, STONE_WALL, WATER = 0, 1, 2, 3, 4
-FALLING_TYPES = [SAND, DIRT]
-STATIONARY_TYPES = [STONE_WALL]
-LIQUID_TYPES = [WATER]
-
 # initiate sand colors
-COLORS = [(0, 0, 0)]
-
-SAND_COLORS = [(246, 215, 176), (242, 210, 169), (236, 204, 162), (231, 196, 150), (225, 191, 146)]
-DUNE_COLORS = [(171, 148, 107), (186, 166, 132), (137, 120, 105), (182, 174, 166), (154, 140, 122)]
-
-DIRT_COLORS = [(234, 208, 168), (182, 159, 102), (107, 84, 40), (118, 85, 43), (64, 41, 5)]
-BROWN_DIRT_COLORS = [(90, 79, 62), (114, 93, 76), (79, 58, 43), (43, 24, 12), (51, 36, 25)]
-
-STONE_WALL_COLORS = [(144, 152, 163), (156, 156, 156), (152, 160, 167), (140, 141, 141), (142, 148, 148)]
-
-WATER_COLORS = [(15, 94, 156), (35, 137, 218), (28, 163, 236), (90, 188, 216), (116, 204, 244)]
+COLORS = [EMPTY_COLORS[0], SAND_COLORS + DUNE_COLORS, BROWN_DIRT_COLORS, STONE_WALL_COLORS, WATER_COLORS]
 
 # picked_colors = 0
 # while not [1, 2, 3].__contains__(picked_colors):
@@ -42,10 +28,6 @@ WATER_COLORS = [(15, 94, 156), (35, 137, 218), (28, 163, 236), (90, 188, 216), (
 #     COLORS.append(DUNE_COLORS)
 # elif picked_colors == 3:
 #     COLORS.append(SAND_COLORS + DUNE_COLORS]
-COLORS.append(SAND_COLORS + DUNE_COLORS)
-COLORS.append(BROWN_DIRT_COLORS)
-COLORS.append(STONE_WALL_COLORS)
-COLORS.append(WATER_COLORS)
 
 # set up cursor and brush
 # cursor_size = int(input("Please choose a cursor size: "))
