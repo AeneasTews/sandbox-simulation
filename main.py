@@ -108,8 +108,6 @@ def update_grid():
 
             # check every cell, that isn't empty
             if current_cell[0] != EMPTY:
-                # copy all cells that have a value to the next grid
-                # next_grid[row][col] = current_cell
 
                 # check falling cell types
                 if FALLING_TYPES.__contains__(current_cell[0]):
@@ -157,32 +155,22 @@ def update_grid():
                         if grid[row + 1][col][0] == EMPTY:
                             grid[row + 1][col] = current_cell
                             grid[row][col] = (EMPTY, COLORS[EMPTY])
-                            # next_grid[row + 1][col] = current_cell
-                            # next_grid[row][col] = (EMPTY, COLORS[EMPTY])
 
                         elif grid[row + 1][col - move_dir][0] == EMPTY:
                             grid[row + 1][col - move_dir] = current_cell
                             grid[row][col] = (EMPTY, COLORS[EMPTY])
-                            # next_grid[row + 1][col - move_dir] = current_cell
-                            # next_grid[row][col] = (EMPTY, COLORS[EMPTY])
 
                         elif grid[row + 1][col + move_dir][0] == EMPTY:
                             grid[row + 1][col + move_dir] = current_cell
                             grid[row][col] = (EMPTY, COLORS[EMPTY])
-                            # next_grid[row + 1][col + move_dir] = current_cell
-                            # next_grid[row][col] = (EMPTY, COLORS[EMPTY])
 
                         elif grid[row][col - move_dir][0] == EMPTY:
                             grid[row][col - move_dir] = current_cell
                             grid[row][col] = (EMPTY, COLORS[EMPTY])
-                            # next_grid[row][col - move_dir] = current_cell
-                            # next_grid[row][col] = (EMPTY, COLORS[EMPTY])
 
                         elif grid[row][col + move_dir][0] == EMPTY:
                             grid[row][col + move_dir] = current_cell
                             grid[row][col] = (EMPTY, COLORS[EMPTY])
-                            # next_grid[row][col + move_dir] = current_cell
-                            # next_grid[row][col] = (EMPTY, COLORS[EMPTY])
 
 
 # initialize debug stuff
