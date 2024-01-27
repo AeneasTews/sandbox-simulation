@@ -134,19 +134,7 @@ def update_grid():
                     move_dir = random.choice([-1, 1])
 
                     if col != 0 and col != GRID_WIDTH - 1:
-                        if grid[row + 1][col][0] == EMPTY:
-                            grid[row + 1][col] = current_cell
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
-
-                        elif grid[row + 1][col - move_dir][0] == EMPTY:
-                            grid[row + 1][col - move_dir] = current_cell
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
-
-                        elif grid[row + 1][col + move_dir][0] == EMPTY:
-                            grid[row + 1][col + move_dir] = current_cell
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
-
-                        elif grid[row][col - move_dir][0] == EMPTY:
+                        if grid[row][col - move_dir][0] == EMPTY:
                             grid[row][col - move_dir] = current_cell
                             grid[row][col] = (EMPTY, COLORS[EMPTY])
 
@@ -155,19 +143,11 @@ def update_grid():
                             grid[row][col] = (EMPTY, COLORS[EMPTY])
 
                     elif col == 0:
-                        if grid[row + 1][col + 1][0] == EMPTY:
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
-                            grid[row + 1][col + 1] = current_cell
-
-                        elif grid[row][col + 1][0] == EMPTY:
+                        if grid[row][col + 1][0] == EMPTY:
                             grid[row][col + 1] = current_cell
                             grid[row][col] = (EMPTY, COLORS[EMPTY])
                     else:
-                        if grid[row + 1][col - 1][0] == EMPTY:
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
-                            grid[row + 1][col - 1] = current_cell
-
-                        elif grid[row][col - 1][0] == EMPTY:
+                        if grid[row][col - 1][0] == EMPTY:
                             grid[row][col - 1] = current_cell
                             grid[row][col] = (EMPTY, COLORS[EMPTY])
 
