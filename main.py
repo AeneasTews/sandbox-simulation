@@ -97,6 +97,7 @@ def update_grid(grid):
                 else:
                     grid = check_non_falling(grid, col, row, current_cell)
 
+                # if the element is liquid it should undergo this check
                 if grid[row][col].element.is_liquid:
                     grid = check_liquid(grid, col, row, current_cell)
 
