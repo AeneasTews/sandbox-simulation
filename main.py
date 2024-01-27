@@ -1,7 +1,6 @@
 import random
 import pygame as pg
-from color_palettes import *
-from element_config import *
+from element_config import ELEMENTS
 
 # setup pg
 pg.init()
@@ -12,8 +11,6 @@ fps = 60
 clock = pg.time.Clock()
 
 # setup game
-# initiate sand colors
-COLORS = [EMPTY_COLORS[0], SAND_COLORS + DUNE_COLORS, BROWN_DIRT_COLORS, STONE_WALL_COLORS, WATER_COLORS]
 
 # picked_colors = 0
 # while not [1, 2, 3].__contains__(picked_colors):
@@ -32,7 +29,7 @@ COLORS = [EMPTY_COLORS[0], SAND_COLORS + DUNE_COLORS, BROWN_DIRT_COLORS, STONE_W
 # set up cursor and brush
 # cursor_size = int(input("Please choose a cursor size: "))
 cursor_size = 3
-paint = DIRT
+paint = ELEMENTS['dirt']
 
 # create grid
 GRID_WIDTH = 100
@@ -41,7 +38,7 @@ GRID_HEIGHT = 100
 CELL_WIDTH = size[0] / GRID_WIDTH
 CELL_HEIGHT = size[1] / GRID_HEIGHT
 
-grid = [[(EMPTY, COLORS[EMPTY]) for x in range(GRID_WIDTH)] for y in range(GRID_HEIGHT)]
+grid = [[(ELEMENTS['empty'], ELEMENTS['empty'].colors[0]) for x in range(GRID_WIDTH)] for y in range(GRID_HEIGHT)]
 
 # animation fix
 # this should absolutely be considered a botch
@@ -51,7 +48,7 @@ change_col_checking_dir = True
 def draw_grid():
     for row in range(GRID_HEIGHT):
         for col in range(GRID_WIDTH):
-            if grid[row][col][0] != EMPTY:
+            if grid[row][col] != ELEMENTS['empty']:
                 pg.draw.rect(screen, 
                              grid[row][col][1],
                              ((col * CELL_WIDTH, row * CELL_HEIGHT), (CELL_WIDTH, CELL_HEIGHT)))
@@ -65,7 +62,7 @@ def add_cell():
             y = int(mouse_pos[1] / CELL_HEIGHT + (cursor_size / 2 - j))
 
             if 0 <= y < GRID_HEIGHT and 0 <= x < GRID_WIDTH:
-                grid[y][x] = (paint, random.choice(COLORS[paint]))
+                grid[y][x] = (paint, random.choice(paint.colors))
 
 
 def check_mouse():
@@ -89,10 +86,10 @@ def update_grid():
             current_cell = grid[row][col]
 
             # check every cell, that isn't empty
-            if current_cell[0] != EMPTY:
+            if current_cell[0] != ELEMENTS['empty']:
 
                 # check falling cell types
-                if FALLING_TYPES.__contains__(current_cell[0]):
+                if current_cell[0].has_gravity:
                     # generate a random direction for the cell to 'fall' to if the appropriate one is empty in order to
                     # avoid it always filling up the right side first
                     drop_dir = random.choice([-1, 1])
@@ -100,56 +97,56 @@ def update_grid():
                     # check if the outside columns are being checked
                     if col != GRID_WIDTH - 1 and col != 0:
                         # check if a cell doesn't have a filled cell below it
-                        if grid[row + 1][col][0] == EMPTY:
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
+                        if grid[row + 1][col][0] == ELEMENTS['empty']:
+                            grid[row][col] = (ELEMENTS['empty'], ELEMENTS['empty'].colors[0])
                             grid[row + 1][col] = current_cell
 
                         # check if the cell to the bottom right is empty
-                        elif grid[row + 1][col + drop_dir][0] == EMPTY:
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
+                        elif grid[row + 1][col + drop_dir][0] == ELEMENTS['empty']:
+                            grid[row][col] = (ELEMENTS['empty'], ELEMENTS['empty'].colors[0])
                             grid[row + 1][col + drop_dir] = current_cell
 
                         # check if the cell to the bottom left is empty
-                        elif grid[row + 1][col - drop_dir][0] == EMPTY:
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
+                        elif grid[row + 1][col - drop_dir][0] == ELEMENTS['empty']:
+                            grid[row][col] = (ELEMENTS['empty'], ELEMENTS['empty'].colors[0])
                             grid[row + 1][col - drop_dir] = current_cell
 
                     # handle outside columns separately in order to avoid list index errors
                     else:
                         if col == 0:
-                            if grid[row + 1][col + 1][0] == EMPTY:
-                                grid[row][col] = (EMPTY, COLORS[EMPTY])
+                            if grid[row + 1][col + 1][0] == ELEMENTS['empty']:
+                                grid[row][col] = (ELEMENTS['empty'], ELEMENTS['empty'].colors[0])
                                 grid[row + 1][col + 1] = current_cell
                         else:
-                            if grid[row + 1][col - 1][0] == EMPTY:
-                                grid[row][col] = (EMPTY, COLORS[EMPTY])
+                            if grid[row + 1][col - 1][0] == ELEMENTS['empty']:
+                                grid[row][col] = (ELEMENTS['empty'], ELEMENTS['empty'].colors[0])
                                 grid[row + 1][col - 1] = current_cell
 
                 # if the type is stationary, nothing else should be checked
-                elif STATIONARY_TYPES.__contains__(grid[row][col][0]):
+                else:
                     pass
 
-                if LIQUID_TYPES.__contains__(grid[row][col][0]):
+                if grid[row][col][0].is_liquid:
                     # random direction in order to balance
                     move_dir = random.choice([-1, 1])
 
                     if col != 0 and col != GRID_WIDTH - 1:
-                        if grid[row][col - move_dir][0] == EMPTY:
+                        if grid[row][col - move_dir][0] == ELEMENTS['empty']:
                             grid[row][col - move_dir] = current_cell
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
+                            grid[row][col] = (ELEMENTS['empty'], ELEMENTS['empty'].colors[0])
 
-                        elif grid[row][col + move_dir][0] == EMPTY:
+                        elif grid[row][col + move_dir][0] == ELEMENTS['empty']:
                             grid[row][col + move_dir] = current_cell
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
+                            grid[row][col] = (ELEMENTS['empty'], ELEMENTS['empty'].colors[0])
 
                     elif col == 0:
-                        if grid[row][col + 1][0] == EMPTY:
+                        if grid[row][col + 1][0] == ELEMENTS['empty']:
                             grid[row][col + 1] = current_cell
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
+                            grid[row][col] = (ELEMENTS['empty'], ELEMENTS['empty'].colors[0])
                     else:
-                        if grid[row][col - 1][0] == EMPTY:
+                        if grid[row][col - 1][0] == ELEMENTS['empty']:
                             grid[row][col - 1] = current_cell
-                            grid[row][col] = (EMPTY, COLORS[EMPTY])
+                            grid[row][col] = (ELEMENTS['empty'], ELEMENTS['empty'].colors[0])
 
 
 # initialize debug stuff
@@ -165,19 +162,19 @@ while True:
 
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_s:
-                paint = SAND
+                paint = ELEMENTS['sand']
 
             if event.key == pg.K_d:
-                paint = DIRT
+                paint = ELEMENTS['dirt']
 
             if event.key == pg.K_e:
-                paint = EMPTY
+                paint = ELEMENTS['empty']
 
             if event.key == pg.K_w:
-                paint = STONE_WALL
+                paint = ELEMENTS['stone_wall']
 
             if event.key == pg.K_l:
-                paint = WATER
+                paint = ELEMENTS['water']
 
             # debug mode
             if event.key == pg.K_f:
@@ -209,7 +206,7 @@ while True:
     check_mouse()
 
     # clear the screen
-    screen.fill(COLORS[EMPTY])
+    screen.fill(ELEMENTS['empty'].colors[0])
 
     # check the grid for falling
     update_grid()
